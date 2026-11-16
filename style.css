@@ -35,11 +35,19 @@
         /* by default, h1 + p is opacity: 0.5, so reset */
         opacity: 1;
     }
-    
+
 
     h1 {
         @apply text-5xl;
+        font-weight: 900;
     }
+
+    &.section h1 {
+        @apply text-7xl;
+        font-weight: 900;
+        line-height: 1.3em;
+    }
+
 
     pre,
     code {

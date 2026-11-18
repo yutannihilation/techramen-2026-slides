@@ -14,6 +14,11 @@
         list-style-type: decimal;
     }
 
+    b,
+    strong {
+        font-weight: 900;
+    }
+
     h1,
     h2,
     h3,

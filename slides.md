@@ -73,10 +73,16 @@ layout: section
 - 一方で、FM 音を出せる程度にパワフルなCPUも積んでいる
 
 <v-click>
-<div class="text-center text-red-500 text-5xl">
+<div class="my-auto text-center text-red-500 text-5xl">
 → チップチューンとローファイ音の<br/>夢の融合...！！！
 </div>
 </v-click>
+
+---
+layout: image
+image: /diagram.png
+backgroundSize: contain
+---
 
 ---
 
@@ -100,7 +106,7 @@ layout: section
 
 - 実は Rust は GBA の CPU（ARM7TDMI）をサポートしている（tier 3）
   - `armv4t-none-eabi`（32ビット命令）
-  - <span v-mark="{ at: 2, type: 'box', strokeWidth: 12, color: 'red' }">`thumbv4t-none-eabi`（16ビット命令）</span> <span v-click="2" class="text-red-500 font-bold ml-2"><br/>カートリッジを読み取るバスの幅が16ビットしかない、等の理由で16ビットの方がパフォーマンスが出る</span>
+  - <span v-mark="{ at: 2, type: 'box', strokeWidth: 12, color: 'red' }">`thumbv4t-none-eabi`（16ビット命令）</span> <span v-click="2" class="text-red-500 font-bold ml-2"><br/><br/>カートリッジを読み取るバスの幅が16ビットしかない、等の理由で16ビットの方がパフォーマンスが出る</span>
 
 </v-click>
 
@@ -115,7 +121,7 @@ layout: section
 
 # agb の方が色々整っててよさげ？
 
-<img src="/agb_crate.png" class="mx-auto max-h-80" />
+<img src="/agb_crate.png" class="mx-auto max-h-100" />
 
 ---
 
@@ -190,6 +196,116 @@ TONE1_FREQUENCY.write(
 - このパラメータが直接周波数になるわけではない
 - 周波数 = $2^{17}/(2048-val)$ で計算できる
 - あと、この式を見て明らかなように、最大値は 2047（$=2^{11}-1$）
-- Rust 上では`u16`になってるけど、ゲームボーイアドバンスに渡せるのは11ビットだけ
+  - Rust 上では`u16`になってるけど、ゲームボーイアドバンスに渡せるのは11ビットだけ
 
 </v-clicks>
+
+---
+class: flex flex-col
+---
+
+# ...みたいな情報はどこで知ればいいの？
+
+<v-click>
+<div class="my-auto text-center text-red-500 text-5xl">
+古のインターネット！
+</div>
+</v-click>
+
+---
+
+# ...みたいな情報はどこで知ればいいの？
+
+- Rust の情報はないけど、20年前の C の情報ならある
+- 手書き HTML のやさしさ
+- まとまってないけどめっちゃ詳しい
+
+---
+
+# ...みたいな情報はどこで知ればいいの？
+
+- [No$GBA](https://problemkaputt.de/gbatek-gba-reference.htm)
+- [Tonc](https://gbadev.net/tonc/)
+- [Deku's sound mixing tutorial ](https://stuij.github.io/deku-sound-tutorial/)
+
+---
+
+# No$GBA
+
+<img src="/nocash_gba1.png" class="mx-auto max-h-100" />
+
+---
+
+# No$GBA
+
+- GBA のエミュレーターのドキュメント
+- ハードウェアの仕様については一番詳しい
+
+<img src="/nocash_gba1.png" class="mx-auto max-h-80" />
+
+---
+
+# No$GBA
+
+- GBA のエミュレーターのドキュメント
+- ハードウェアの仕様については一番詳しい
+
+<img src="/nocash_gba2.png" class="mx-auto max-h-80" />
+
+---
+
+# Tonc
+
+<img src="/tonc1.png" class="mx-auto max-h-100" />
+
+---
+
+# Tonc
+
+- GBA でゲームをつくるチュートリアル
+- 音楽面では、矩形波の音源チップの使い方を解説している（ノイズ、PCM はなし）
+
+<img src="/tonc1.png" class="mx-auto max-h-100" />
+
+
+---
+
+# Deku's sound mixing tutorial
+
+<img src="/deku1.png" class="mx-auto max-h-100" />
+
+---
+
+# Deku's sound mixing tutorial
+
+- GBAのサウンドに特化したチュートリアル。
+- PCM 音源の使い方を説明している（矩形波、ノイズはなし）
+
+<img src="/deku1.png" class="mx-auto max-h-80" />
+
+---
+layout: image
+image: /diagram.png
+backgroundSize: contain
+---
+
+---
+
+# GBA のサウンド関連ハードウェア
+
+- **PSG 音源**：ゲームボーイ互換の部分。音を鳴らす専用のチップから音が出る。
+- **CPU 音源**：CPU で生成した波形を鳴らす。
+
+<img src="/diagram.png" class="mx-auto max-h-70" />
+
+---
+
+# すべてをカバーしているドキュメントはない...
+
+- **No$GBA**：レジスタの定義は詳しいが、具体的な使い方の説明はない。
+- **Tonc**：PSG 音源、しかも矩形波の説明しかない。
+- **Deku**：CPU 音源の説明しかない。
+
+---
+
+# すべてをカバーしているドキュメントはない...

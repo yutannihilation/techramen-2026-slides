@@ -307,5 +307,227 @@ backgroundSize: contain
 - **Deku**：CPU 音源の説明しかない。
 
 ---
+layout: section
+---
 
-# すべてをカバーしているドキュメントはない...
+# 矩形波を鳴らしてみる
+
+---
+
+# 矩形波とは？
+
+- こんなやつ
+
+<img src="/sqrwave.png" class="mx-auto h-80" />
+<span class="block text-center mt-2">出典：Tonc</span>
+
+---
+
+# 矩形波関連のレジスタ
+
+- 周波数、音のトリガ
+- 1音の長さ、デューティ比、エンベロープ関連
+- 周波数スイープ（矩形波1のみ）
+
+---
+
+# 周波数、音のトリガ
+
+- **R**: 周波数を定めるパラメータ。周波数 = $2^{17}/(2048-R)$ で計算できる。
+- **T**: 設定した1音の長さを無視するかどうか
+- **Re**: 音をトリガするかどうか
+
+<img src="/reg1.png" class="mx-auto h-40" />
+
+---
+
+# 周波数、音のトリガのレジスタ
+
+- つまり、音を鳴らしたいときはこんなバイト列をレジスタに書き込む
+  - `F`: 音をトリガする
+  - `E`: 指定した長さで音を止める
+  - `A`-`0`: 鳴らしたい周波数から逆算した値
+
+|F|E|D|C|B|A|9|8|7|6|5|4|3|2|1|0|
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+|1|1| | | |?|?|?|?|?|?|?|?|?|?|?|
+
+---
+
+# Rustのコードで言うとこんな感じ
+
+- `note_to_rate()`は欲しい周波数が得られるパラメータを計算する関数
+
+```rs
+TONE1_FREQUENCY.write(
+    ToneFrequency::new()
+        .with_enabled(true)
+        .with_stop_when_expired(true)
+        .with_frequency(note_to_rate(...)),
+);
+```
+
+---
+
+# `note_to_rate()`の例
+
+- 1オクターブ分の音は計算しておく
+- 1オクターブ上がると周波数は倍になるのがミソ
+
+```rs
+const BASE_RATES: [u16; 12] = [
+    8013, 7566, 7144, 6742, 6362, 6005, 5666, 5346, 5048, 4766, 4499, 4246,
+];
+
+fn note_to_rate(i: usize, octave: u8) -> u16 {
+    let base_freq = BASE_RATES[i];
+    2048 - (base_freq >> octave)
+}
+```
+
+---
+
+# エンベロープ関連のレジスタ
+
+- **L**: 1音の長さ。$(64-L)/256$秒に設定される。
+- **D**: デューティ比（1/8、1/4、1/2、3/4）。
+- **EST**: エンベロープの増加/減少の速さ。
+- **ED**: エンベロープが増加か減少か。
+- **EIV**: エンベロープの初期値。
+
+<img src="/reg2.png" class="mx-auto h-40" />
+
+---
+
+# そもそもエンベロープとは？
+
+- 音が鳴ってから消えるまでの時間的な音量の変化のこと。
+- ざっくり言うと、音の大きさや長さ。
+- （デューティ比はエンベロープとは関係ない）
+
+---
+
+# デューティ比
+
+- オンとオフの時間の割合。音色に影響する。
+
+<img src="/duty_cycle.gif" class="mx-auto h-80" />
+<span class="block text-center mt-2">出典：<a href="https://commons.wikimedia.org/wiki/File:PWM_duty_cycle_with_label.gif">Wikipedia</a></span>
+
+---
+
+# Rustのコードで言うとこんな感じ
+
+```rs
+TONE1_PATTERN.write(
+    TonePattern::new()
+        .with_length(8)    // 1音の長さ
+        .with_duty(2)      // デューティ比（2=50%）
+        .with_step_time(4) // 音量変化の滑らかさ
+        .with_step_increasing(false)
+        .with_volume(12),  // 音量の大きさ
+);
+```
+
+---
+
+# 周波数スイープのレジスタ
+
+（省略）
+
+---
+
+# ミキサー関連のレジスタ
+
+- 図では省略したけど色々設定がある
+
+```rs
+SOUND_ENABLED.write(
+    SoundEnable::new()
+        .with_enabled(true)
+        .with_tone1_playing(true),
+);
+```
+
+```rs
+SOUND_MIX.write(
+    SoundMix::new().with_psg(PsgMix::_100)
+);
+```
+
+---
+
+# 全体のボリューム等のレジスタ
+
+```rs
+LEFT_RIGHT_VOLUME.write(
+    LeftRightVolume::new()
+        .with_left_volume(7)
+        .with_right_volume(7)
+        .with_tone1_left(true)
+        .with_tone1_right(true),
+);
+```
+
+---
+
+# デモ
+
+
+---
+layout: section
+---
+
+# まとめ
+
+---
+
+# 今日話せなかったこと
+
+- 矩形波以外の音源チップの使い方
+- CPU での音の作り方
+- グラフィックの操作やボタン入力
+- コンパイルしたバイナリを実際に GBA で実行する方法
+
+---
+
+# まとめ
+
+- GBA は、チップチューンとローファイ音楽の夢の融合！
+- Rust で GBA 向けのソフトウェアを開発することができる
+- ドキュメントはないが、インターネットの海に漂う知識が助けてくれる
+
+---
+
+# 余談：FMSの最新のアップデート
+
+<v-click>
+
+<img src="/fms_update.png" class="mx-auto max-h-100" />
+
+</v-click>
+
+---
+
+# えっ！？
+
+<img src="/fms_update2.png" class="mx-auto max-h-100" />
+
+---
+
+# FMS、チップチューンやめるってよ
+
+- もともと FMS は、音源チップはノイズしか使ってなかった
+- しかし、音源チップのノイズよりも、ソフトウェアのノイズの方が多彩な音を出せることが判明...
+
+<v-click>
+
+- 実は、GBAはもうアツくない...？
+
+</v-click>
+
+---
+
+# でも FMS はアツいので応援したい
+
+<Youtube id="7KFQ_VzE8Po" width="640" height="360" class="mx-auto" />

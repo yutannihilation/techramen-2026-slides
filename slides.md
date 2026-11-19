@@ -473,6 +473,8 @@ LEFT_RIGHT_VOLUME.write(
 
 # デモ
 
+<Webcam />
+
 
 ---
 layout: section
